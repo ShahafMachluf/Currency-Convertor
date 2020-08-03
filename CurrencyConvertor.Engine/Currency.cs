@@ -17,11 +17,8 @@ namespace CurrencyConvertor.Engine
 
         private string callAPI(string i_Request)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(i_Request);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream stream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            WebClient client = new WebClient();
+            return client.DownloadString(i_Request);
         }
 
         private string createExchangeRequestURL(string i_ConvertTo)
@@ -80,7 +77,7 @@ namespace CurrencyConvertor.Engine
             string requestURL = createSupportedCurrenciesRequestURL();
             string jsonString = callAPI(requestURL);
             JContainer root = (JContainer)JToken.Parse(jsonString);
-            List<string> currencies = root.DescendantsAndSelf().OfType<JProperty>().Where(property => property.Name == "id").Select(property => property.Value.Value<string>()).ToList();
+            List<string> currencies = root.DescendantsAndSelf().OfType<JProperty>().Where(property => property.Name == "id").Select(property => property.Value.Value<string>()).ToList<string>();
 
             return currencies;
         }
