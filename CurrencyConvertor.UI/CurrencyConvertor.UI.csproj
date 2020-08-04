@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="UIHelper.cs" />
+    <Compile Include="UIManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CurrencyConvertor.Engine\CurrencyConvertor.Engine.csproj">

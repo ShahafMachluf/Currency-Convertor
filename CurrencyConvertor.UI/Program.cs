@@ -12,7 +12,7 @@ namespace CurrencyConvertor.UI
             }
             else
             {
-                UIHelper.RunConvertor(args[0]);
+                UIManager.RunConvertor(args[0]);
             }
         }
     }
