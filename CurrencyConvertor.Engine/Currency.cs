@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CurrencyConvertor.Engine
 {
-    public class Currency : IConvertible
+    public class Currency : ICurrencyConvert
     {
         //private const string k_ApiUrl = "https://free.currconv.com";
         //private const string k_ApiKey = "8e148ee4584f0e546ca6";        
@@ -17,68 +17,42 @@ namespace CurrencyConvertor.Engine
         private float m_Value;
         private string m_CurrencyType;
 
+        public void SetValue(float i_Value)
+        {
+            m_Value = i_Value;
+        }
 
-        private string callAPI(string i_Request)
+        public void SetType(string i_Type)
+        {
+            m_CurrencyType = i_Type;
+        }
+
+        private string issueGetRequest(string i_Request)
         {
             WebClient client = new WebClient();
             return client.DownloadString(i_Request);
         }
 
-        private string createExchangeRequestURL(string i_ConvertTo)
-        {
-            StringBuilder request = new StringBuilder();
-
-            request.Append(k_ApiUrl);
-            request.Append("/api/v1/convert?api_key=");
-            request.Append(k_ApiKey);
-            request.Append("&from=");
-            request.Append(m_CurrencyType);
-            request.Append("&to=");
-            request.Append(i_ConvertTo);
-            request.Append("&amount=1");
-
-            return request.ToString();
-        }
-
-        public object Convert(string i_ConvertTo)
+        public float Convert(string i_ConvertTo)
         {
             string jsonString, requestURL;
 
-            requestURL = createExchangeRequestURL(i_ConvertTo);
-            jsonString = callAPI(requestURL);
+            requestURL = $"{k_ApiUrl}/api/v1/convert?api_key={k_ApiKey}&from={m_CurrencyType}&to={i_ConvertTo}&amount=1";
+            jsonString = issueGetRequest(requestURL);
             JObject jObj = JObject.Parse(jsonString);
             string exchangeRate = jObj["total"].ToString();
 
             return float.Parse(exchangeRate) * m_Value;
         }
 
-        public void SetValue(object i_Value)
-        {
-            float.TryParse(i_Value.ToString(), out m_Value);
-        }
-
-        public void SetType(object i_Type)
-        {
-            m_CurrencyType = i_Type.ToString();
-        }
-
-        private string createSupportedCurrenciesRequestURL()
-        {
-            StringBuilder URL = new StringBuilder();
-            URL.Append(k_ApiUrl);
-            URL.Append("/api/v1/live_currencies_list?api_key=");
-            URL.Append(k_ApiKey);
-
-            return URL.ToString();
-        }
-
         public List<string> GetConvertibleTypes()
         {
             List<string> result = new List<string>();
-            string requestURL = createSupportedCurrenciesRequestURL();
-            string jsonString = callAPI(requestURL);
+            string requestURL = $"{k_ApiUrl}/api/v1/live_currencies_list?api_key={k_ApiKey}";
+            string jsonString = issueGetRequest(requestURL);
             JObject jObj = JObject.Parse(jsonString);
             IList<JToken> currencies = jObj["available_currencies"].Children().ToList();
+
             for(int i = 0;i<currencies.Count;i++)
             {
                 result.Add(currencies[i].ToString());
@@ -86,11 +60,6 @@ namespace CurrencyConvertor.Engine
             }
 
             return result;
-        }
-
-        public static bool IsCurrenciesTypesSupportedByAPI(List<string> i_CurrenciesTypes, string i_FirstType, string i_SecondType)
-        {
-            return i_CurrenciesTypes.Contains(i_FirstType) && i_CurrenciesTypes.Contains(i_SecondType);
         }
 
         //public List<string> GetConvertibleTypes()
