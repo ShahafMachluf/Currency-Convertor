@@ -1,6 +1,6 @@
 # Currency convertor
 
-Converts currencies using https://free.currconv.com API
+Converts currencies using https://free.currconv.com REST API
 
 Instructions:
 
